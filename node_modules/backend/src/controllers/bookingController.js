@@ -11,10 +11,46 @@ class BookingController {
   static async createBooking(req, res) {
     const client = await pool.connect();
     try {
-      const customer_id = req.user.id;
-      const { shop_id, service_id, staff_id, slot_id, booking_date, booking_time, customer_note, payment_method } = req.body;
+      let customer_id = req.user ? req.user.id : null;
+      const {
+        shop_id,
+        service_id,
+        staff_id,
+        slot_id,
+        booking_date,
+        booking_time,
+        customer_name,
+        customer_email,
+        customer_phone,
+        customer_note,
+        payment_method
+      } = req.body;
 
       await client.query('BEGIN');
+
+      // If no authenticated user, resolve or create guest customer account
+      if (!customer_id) {
+        if (!customer_name || !customer_email || !customer_phone) {
+          await client.query('ROLLBACK');
+          return error(res, 'Name, email, and phone number are required for guest booking.', 400);
+        }
+
+        const userCheck = await client.query('SELECT id FROM users WHERE email = $1', [customer_email.toLowerCase().trim()]);
+        if (userCheck.rows.length > 0) {
+          customer_id = userCheck.rows[0].id;
+        } else {
+          const bcrypt = require('bcryptjs');
+          const randomPass = Math.random().toString(36).slice(-8) + 'A1!';
+          const password_hash = await bcrypt.hash(randomPass, 10);
+          const newGuest = await client.query(
+            `INSERT INTO users (name, email, phone, password_hash, role, is_verified)
+             VALUES ($1, $2, $3, $4, 'customer', true)
+             RETURNING id`,
+            [customer_name.trim(), customer_email.toLowerCase().trim(), customer_phone.trim(), password_hash]
+          );
+          customer_id = newGuest.rows[0].id;
+        }
+      }
 
       // Lock the slot row to prevent concurrent booking
       const slotCheck = await client.query(

@@ -5,7 +5,7 @@ const authorize = require('../middlewares/roleMiddleware');
 
 const router = express.Router();
 
-router.post('/', authenticateToken, authorize('customer'), BookingController.createBooking);
+router.post('/', authenticateToken.optionalAuth, BookingController.createBooking);
 router.get('/my', authenticateToken, authorize('customer'), BookingController.getMyBookings);
 router.get('/shop/:shopId', authenticateToken, authorize('owner', 'admin'), BookingController.getShopBookings);
 

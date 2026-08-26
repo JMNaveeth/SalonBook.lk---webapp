@@ -18,4 +18,21 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
+const optionalAuth = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
+  if (token) {
+    try {
+      const decoded = verifyAccessToken(token);
+      req.user = decoded;
+    } catch (err) {
+      // optional token verification failed, proceed as guest
+    }
+  }
+  next();
+};
+
+authenticateToken.optionalAuth = optionalAuth;
+
 module.exports = authenticateToken;

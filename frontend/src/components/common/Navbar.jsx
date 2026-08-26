@@ -148,14 +148,14 @@ const Navbar = () => {
                   to="/login"
                   className="text-sm font-semibold text-neutral-700 hover:text-primary-600 px-4 py-2.5 rounded-xl hover:bg-neutral-50 transition-all"
                 >
-                  Sign In
+                  Owner Sign In
                 </Link>
                 <Link
-                  to="/register"
+                  to="/register?role=owner"
                   className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all shadow-md shadow-primary-500/20 hover:shadow-lg hover:shadow-primary-500/30 flex items-center space-x-1.5"
                 >
                   <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>Get Started</span>
+                  <span>List Your Salon</span>
                 </Link>
               </div>
             )}
@@ -256,14 +256,14 @@ const Navbar = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full text-center py-3 text-neutral-700 font-bold border border-neutral-200 rounded-xl"
                 >
-                  Sign In
+                  Owner Sign In
                 </Link>
                 <Link
-                  to="/register"
+                  to="/register?role=owner"
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full text-center py-3 text-white bg-primary-500 font-bold rounded-xl shadow"
                 >
-                  Create Account
+                  List Your Salon (Free)
                 </Link>
               </div>
             )}

@@ -52,14 +52,7 @@ const App = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/salons" element={<SalonList />} />
                 <Route path="/salons/:id" element={<SalonDetail />} />
-                <Route
-                  path="/book/:shopId"
-                  element={
-                    <ProtectedRoute role="customer">
-                      <BookingFlow />
-                    </ProtectedRoute>
-                  }
-                />
+                <Route path="/book/:shopId" element={<BookingFlow />} />
                 <Route
                   path="/bookings"
                   element={
