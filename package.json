@@ -1,15 +1,18 @@
 {
-  "name": "salonbook-lk",
+  "name": "salonbook-web-app",
   "version": "1.0.0",
+  "description": "SalonBook LK - Full-Stack Multi-Salon Booking Application",
   "private": true,
-  "description": "SalonBook LK - Full-Stack Multi-Salon Booking Platform for Sri Lanka",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "scripts": {
-    "install:backend": "cd backend && npm install",
-    "install:frontend": "cd frontend && npm install",
-    "install:all": "npm run install:backend && npm run install:frontend",
-    "start:backend": "cd backend && npm start",
-    "start:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run dev"
+    "install:all": "npm install",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "start:backend": "npm --prefix backend start",
+    "build:frontend": "npm --prefix frontend run build"
   }
 }
+

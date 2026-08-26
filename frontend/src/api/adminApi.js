@@ -11,4 +11,5 @@ export const getAllUsersApi = () => api.get('/admin/users');
 export const toggleUserBanApi = (id, data) => api.patch(`/admin/users/${id}/ban`, data);
 
 export const getAllPaymentsAdminApi = () => api.get('/admin/payments');
+export const refundPaymentApi = (id, data) => api.post(`/admin/payments/${id}/refund`, data);
 export const getAdminAnalyticsApi = () => api.get('/admin/analytics');
