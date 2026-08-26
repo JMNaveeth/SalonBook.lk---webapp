@@ -10,6 +10,7 @@ import TimeSlotPicker from '../../components/customer/TimeSlotPicker';
 import Loader from '../../components/common/Loader';
 import { formatLKR } from '../../utils/formatCurrency';
 import { useToast } from '../../hooks/useToast';
+import { useAuth } from '../../hooks/useAuth';
 import { Scissors, User, Calendar, Clock, CheckCircle2, CreditCard, ChevronRight, ChevronLeft } from 'lucide-react';
 
 const BookingFlow = () => {
@@ -17,6 +18,7 @@ const BookingFlow = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const toast = useToast();
+  const { user } = useAuth();
 
   const [step, setStep] = useState(1);
   const [shop, setShop] = useState(null);
@@ -32,10 +34,24 @@ const BookingFlow = () => {
   const [customerNote, setCustomerNote] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cash');
 
+  // Customer Contact Information (supports guest bookings)
+  const [customerName, setCustomerName] = useState(user?.name || '');
+  const [customerEmail, setCustomerEmail] = useState(user?.email || '');
+  const [customerPhone, setCustomerPhone] = useState(user?.phone || '');
+
   const [loading, setLoading] = useState(true);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [createdBooking, setCreatedBooking] = useState(null);
+
+  // Pre-fill customer details when user auth state updates
+  useEffect(() => {
+    if (user) {
+      if (!customerName) setCustomerName(user.name || '');
+      if (!customerEmail) setCustomerEmail(user.email || '');
+      if (!customerPhone) setCustomerPhone(user.phone || '');
+    }
+  }, [user]);
 
   // Load shop, services, staff
   useEffect(() => {
@@ -90,6 +106,11 @@ const BookingFlow = () => {
       return;
     }
 
+    if (!customerName.trim() || !customerEmail.trim() || !customerPhone.trim()) {
+      toast.error('Please enter your name, email, and phone number');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const payload = {
@@ -99,6 +120,9 @@ const BookingFlow = () => {
         slot_id: selectedSlot.id,
         booking_date: selectedDate,
         booking_time: selectedSlot.slot_time,
+        customer_name: customerName.trim(),
+        customer_email: customerEmail.trim(),
+        customer_phone: customerPhone.trim(),
         customer_note: customerNote,
         payment_method: paymentMethod,
       };
@@ -128,7 +152,7 @@ const BookingFlow = () => {
               {step === 2 && 'Select Staff'}
               {step === 3 && 'Select Date'}
               {step === 4 && 'Select Time Slot'}
-              {step === 5 && 'Confirm & Payment'}
+              {step === 5 && 'Customer Info & Payment'}
             </span>
           </div>
           <div className="w-full bg-neutral-100 h-2 rounded-full overflow-hidden">
@@ -329,7 +353,7 @@ const BookingFlow = () => {
         </div>
       )}
 
-      {/* STEP 5: Confirm & Payment */}
+      {/* STEP 5: Customer Info & Payment */}
       {step === 5 && (
         <div className="bg-white p-6 rounded-3xl border border-neutral-100 shadow-sm space-y-6">
           <h2 className="text-xl font-display font-bold text-neutral-900">Step 5: Review & Confirm Booking</h2>
@@ -343,11 +367,63 @@ const BookingFlow = () => {
             <div className="flex justify-between border-t border-neutral-200 pt-2 font-mono font-bold text-base"><span>Total Amount:</span> <span className="text-neutral-900">{formatLKR(selectedService?.price)}</span></div>
           </div>
 
+          {/* Customer Details Form */}
+          <div className="space-y-3 pt-2 border-t border-neutral-100">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-neutral-700 uppercase tracking-wider">Customer Contact Information</h3>
+              {user ? (
+                <span className="text-xs text-green-600 font-semibold bg-green-50 px-2.5 py-0.5 rounded-full">
+                  ✓ Logged in as {user.name}
+                </span>
+              ) : (
+                <span className="text-xs text-primary-600 font-semibold bg-primary-50 px-2.5 py-0.5 rounded-full">
+                  Direct Booking (No signup needed)
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase mb-1">Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Kasun Perera"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="w-full border border-neutral-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase mb-1">Phone Number *</label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="e.g. +94 77 123 4567"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  className="w-full border border-neutral-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-neutral-700 uppercase mb-1">Email Address *</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. kasun@example.com"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  className="w-full border border-neutral-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs font-semibold text-neutral-700 uppercase mb-1">Customer Note (Optional)</label>
             <textarea
               rows="2"
-              placeholder="Any special requests or details..."
+              placeholder="Any special requests or styling preferences..."
               value={customerNote}
               onChange={(e) => setCustomerNote(e.target.value)}
               className="w-full border border-neutral-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
@@ -397,7 +473,7 @@ const BookingFlow = () => {
               onClick={handleCreateBooking}
               className="bg-primary-500 hover:bg-primary-600 disabled:opacity-50 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-md text-sm"
             >
-              {submitting ? 'Confirming...' : 'Confirm Appointment'}
+              {submitting ? 'Confirming...' : 'Confirm & Pay'}
             </button>
           </div>
         </div>
@@ -411,28 +487,46 @@ const BookingFlow = () => {
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-2xl font-display font-bold text-neutral-900">Booking Request Sent!</h2>
+            <h2 className="text-2xl font-display font-bold text-neutral-900">Booking Confirmed!</h2>
             <p className="text-xs text-neutral-500">
-              Booking ID: <span className="font-mono font-bold text-neutral-800">#{createdBooking.id}</span>
+              Booking Reference: <span className="font-mono font-bold text-neutral-800">#{createdBooking.id}</span>
             </p>
           </div>
 
+          <div className="bg-neutral-50 p-4 rounded-2xl border border-neutral-200 max-w-md mx-auto text-left text-xs space-y-2">
+            <div className="flex justify-between"><span className="text-neutral-500">Customer:</span> <span className="font-bold text-neutral-900">{customerName}</span></div>
+            <div className="flex justify-between"><span className="text-neutral-500">Email:</span> <span className="font-medium">{customerEmail}</span></div>
+            <div className="flex justify-between"><span className="text-neutral-500">Phone:</span> <span className="font-medium">{customerPhone}</span></div>
+            <div className="flex justify-between"><span className="text-neutral-500">Salon:</span> <span className="font-bold text-primary-600">{shop?.name}</span></div>
+            <div className="flex justify-between"><span className="text-neutral-500">Service:</span> <span className="font-semibold">{selectedService?.name}</span></div>
+            <div className="flex justify-between"><span className="text-neutral-500">Date & Time:</span> <span>{selectedDate} at {selectedSlot?.slot_time}</span></div>
+            <div className="flex justify-between"><span className="text-neutral-500">Payment Method:</span> <span className="font-bold uppercase text-secondary-600">{paymentMethod === 'cash' ? 'Pay at Salon (Cash)' : 'PayHere Online'}</span></div>
+          </div>
+
           <p className="text-sm text-neutral-600 max-w-md mx-auto">
-            Your appointment has been logged. The salon owner has been notified and will accept your booking shortly.
+            Your appointment has been registered! The salon team will welcome you at your scheduled time.
           </p>
 
-          <div className="pt-4 flex justify-center space-x-4">
+          <div className="pt-4 flex flex-wrap justify-center gap-3">
+            {user && (
+              <button
+                onClick={() => navigate('/bookings')}
+                className="bg-primary-500 hover:bg-primary-600 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow transition-all"
+              >
+                View My Appointments
+              </button>
+            )}
             <button
-              onClick={() => navigate('/bookings')}
-              className="bg-primary-500 hover:bg-primary-600 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow transition-all"
+              onClick={() => navigate('/salons')}
+              className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow"
             >
-              View My Bookings
+              Browse More Salons
             </button>
             <button
               onClick={() => navigate('/')}
               className="bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold px-6 py-2.5 rounded-xl text-sm transition-all"
             >
-              Return Home
+              Home
             </button>
           </div>
         </div>

@@ -9,10 +9,9 @@
   ],
   "scripts": {
     "install:all": "npm install",
-    "dev:backend": "npm --prefix backend run dev",
-    "dev:frontend": "npm --prefix frontend run dev",
-    "start:backend": "npm --prefix backend start",
-    "build:frontend": "npm --prefix frontend run build"
+    "dev:backend": "node init && npm --prefix backend run dev",
+    "dev:frontend": "node init && npm --prefix frontend run dev",
+    "start:backend": "node init && npm --prefix backend start",
+    "build:frontend": "node init && npm --prefix frontend run build"
   }
 }
-

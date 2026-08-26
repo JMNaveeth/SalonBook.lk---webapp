@@ -35,7 +35,7 @@ const Footer = () => {
           <div>
             <h4 className="text-white font-display font-semibold mb-4">Support & Trust</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/login" className="hover:text-primary-500 transition-colors">Customer Portal</Link></li>
+              <li><Link to="/login" className="hover:text-primary-500 transition-colors">Salon Owner Sign In</Link></li>
               <li><span className="text-neutral-400">Pay at Salon Option</span></li>
               <li><span className="text-neutral-400">Verified Reviews</span></li>
               <li><span className="text-neutral-400">Cancellation & Refund Policy</span></li>

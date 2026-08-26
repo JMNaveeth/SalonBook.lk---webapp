@@ -32,8 +32,8 @@ const Login = () => {
           <div className="inline-flex bg-primary-500 text-white p-3 rounded-2xl shadow-sm mb-2">
             <Scissors className="w-6 h-6" />
           </div>
-          <h2 className="text-2xl font-display font-bold text-neutral-900">Sign in to SalonBook LK</h2>
-          <p className="text-xs text-neutral-500">Access your salon appointments or manage your shop</p>
+          <h2 className="text-2xl font-display font-bold text-neutral-900">Salon Owner & Partner Sign In</h2>
+          <p className="text-xs text-neutral-500">Sign in to manage your salon dashboard, staff, and appointments</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -79,13 +79,21 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="text-center pt-4 border-t border-neutral-100">
+        <div className="space-y-3 pt-4 border-t border-neutral-100 text-center">
           <p className="text-xs text-neutral-500">
-            Don't have an account?{' '}
-            <Link to="/register" className="font-semibold text-primary-600 hover:underline">
-              Create Account
+            Want to list your salon on SalonBook LK?{' '}
+            <Link to="/register" className="font-bold text-primary-600 hover:underline">
+              List Your Salon (Free)
             </Link>
           </p>
+
+          <div className="p-3 bg-neutral-50 rounded-xl text-xs text-neutral-600 border border-neutral-200">
+            <span className="font-semibold text-neutral-800">Looking to book an appointment?</span>
+            <p className="text-[11px] text-neutral-500 mt-0.5">No account required! Select a salon and book directly.</p>
+            <Link to="/salons" className="inline-block mt-1 text-primary-600 font-bold hover:underline">
+              Browse Salons →
+            </Link>
+          </div>
         </div>
       </div>
     </div>

@@ -7,10 +7,6 @@ import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 
 const Register = () => {
-  const [searchParams] = useSearchParams();
-  const initialRole = searchParams.get('role') === 'owner' ? 'owner' : 'customer';
-  const [selectedRole, setSelectedRole] = useState(initialRole);
-
   const { register, handleSubmit, formState: { errors } } = useForm();
   const { login } = useAuth();
   const toast = useToast();
@@ -19,9 +15,9 @@ const Register = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const payload = { ...data, role: selectedRole };
+      const payload = { ...data, role: 'owner' };
       const res = await registerApi(payload);
-      toast.success('Registration successful!');
+      toast.success('Registration successful! Welcome partner salon.');
       login(res.data.data.user, res.data.data.accessToken, res.data.data.refreshToken);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed');
@@ -35,57 +31,23 @@ const Register = () => {
       <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-sm border border-neutral-100 space-y-6">
         <div className="text-center space-y-2">
           <div className="inline-flex bg-primary-500 text-white p-3 rounded-2xl shadow-sm mb-2">
-            <Scissors className="w-6 h-6" />
+            <Store className="w-6 h-6" />
           </div>
-          <h2 className="text-2xl font-display font-bold text-neutral-900">Create SalonBook LK Account</h2>
-          <p className="text-xs text-neutral-500">Join Sri Lanka's leading salon booking network</p>
+          <h2 className="text-2xl font-display font-bold text-neutral-900">Partner & Salon Registration</h2>
+          <p className="text-xs text-neutral-500">List your salon, manage staff & reach thousands of customers in Sri Lanka</p>
         </div>
 
-        {/* Role Picker Toggle */}
-        <div className="grid grid-cols-2 gap-3 p-1.5 bg-neutral-100 rounded-2xl">
-          <button
-            type="button"
-            onClick={() => setSelectedRole('customer')}
-            className={`py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition-all ${
-              selectedRole === 'customer'
-                ? 'bg-white text-neutral-900 shadow-sm'
-                : 'text-neutral-500 hover:text-neutral-700'
-            }`}
-          >
-            <User className="w-4 h-4" />
-            <span>Customer</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setSelectedRole('owner')}
-            className={`py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition-all relative ${
-              selectedRole === 'owner'
-                ? 'bg-white text-primary-600 shadow-sm'
-                : 'text-neutral-500 hover:text-neutral-700'
-            }`}
-          >
-            <Store className="w-4 h-4" />
-            <span>Salon Owner</span>
-            <span className="absolute -top-2 -right-1 bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center">
-              <Sparkles className="w-2.5 h-2.5 mr-0.5" /> FREE 3M
-            </span>
-          </button>
+        <div className="p-3.5 bg-gradient-to-r from-amber-500/10 via-primary-50 to-amber-500/10 border border-amber-300/60 rounded-2xl text-xs text-amber-900 space-y-1">
+          <p className="font-bold flex items-center space-x-1 text-primary-700">
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            <span>Salon Owner Special Offer!</span>
+          </p>
+          <p className="text-neutral-700">Sign up today and get 3 months of FREE Pro Plan salon management tools!</p>
         </div>
-
-        {selectedRole === 'owner' && (
-          <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-1">
-            <p className="font-bold flex items-center space-x-1">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>Owner Special Offer!</span>
-            </p>
-            <p>Sign up today and get 3 months of FREE Pro Plan salon management tools!</p>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-neutral-700 uppercase mb-1">Full Name</label>
+            <label className="block text-xs font-semibold text-neutral-700 uppercase mb-1">Salon Owner Full Name</label>
             <input
               type="text"
               {...register('name', { required: 'Name is required' })}
@@ -134,19 +96,27 @@ const Register = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 rounded-xl transition-all shadow-sm hover:shadow text-sm"
+            className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md text-sm"
           >
-            {loading ? 'Creating Account...' : `Register as ${selectedRole === 'owner' ? 'Salon Owner' : 'Customer'}`}
+            {loading ? 'Registering Salon...' : 'Register Your Salon (Free)'}
           </button>
         </form>
 
-        <div className="text-center pt-4 border-t border-neutral-100">
+        <div className="space-y-3 pt-4 border-t border-neutral-100 text-center">
           <p className="text-xs text-neutral-500">
-            Already have an account?{' '}
-            <Link to="/login" className="font-semibold text-primary-600 hover:underline">
-              Sign In
+            Already registered as a salon owner?{' '}
+            <Link to="/login" className="font-bold text-primary-600 hover:underline">
+              Owner Sign In
             </Link>
           </p>
+
+          <div className="p-3 bg-neutral-50 rounded-xl text-xs text-neutral-600 border border-neutral-200">
+            <span className="font-semibold text-neutral-800">Looking to book an appointment?</span>
+            <p className="text-[11px] text-neutral-500 mt-0.5">No signup required! Browse salons and book directly.</p>
+            <Link to="/salons" className="inline-block mt-1 text-primary-600 font-bold hover:underline">
+              Browse Salons →
+            </Link>
+          </div>
         </div>
       </div>
     </div>
