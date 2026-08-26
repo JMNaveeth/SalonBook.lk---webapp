@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { getMyShopApi, createShopApi, updateShopApi, blockDateApi, unblockDateApi } from '../../api/shopApi';
 import Loader from '../../components/common/Loader';
-import { SRI_LANKA_CITIES } from '../../utils/constants';
+import { ALL_SRI_LANKA_DISTRICTS, getTownsByDistrict } from '../../utils/sriLankaLocations';
 import { useToast } from '../../hooks/useToast';
 import { Store, MapPin, Clock, Image, Calendar, CheckCircle } from 'lucide-react';
 
@@ -16,9 +16,13 @@ const ShopSetup = () => {
   const [newBlockedDate, setNewBlockedDate] = useState('');
   const [blockedReason, setBlockedReason] = useState('');
 
+  const [selectedDistrict, setSelectedDistrict] = useState('Colombo');
+  const [selectedArea, setSelectedArea] = useState('Colombo 01 (Fort)');
+  const [customArea, setCustomArea] = useState('');
+
   const navigate = useNavigate();
   const toast = useToast();
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
 
   useEffect(() => {
     const fetchShop = async () => {
@@ -28,13 +32,28 @@ const ShopSetup = () => {
           const s = res.data.data;
           setExistingShop(s);
           setBlockedDates(s.blocked_dates || []);
+
+          if (s.city) {
+            const parts = s.city.split(',').map((p) => p.trim());
+            if (parts.length >= 2 && ALL_SRI_LANKA_DISTRICTS.includes(parts[1])) {
+              setSelectedDistrict(parts[1]);
+              setSelectedArea(parts[0]);
+            } else if (ALL_SRI_LANKA_DISTRICTS.includes(s.city)) {
+              setSelectedDistrict(s.city);
+              const towns = getTownsByDistrict(s.city);
+              setSelectedArea(towns[0] || s.city);
+            } else {
+              setSelectedArea(s.city);
+            }
+          }
+
           reset({
             name: s.name || '',
             description: s.description || '',
             phone: s.phone || '',
             email: s.email || '',
             address: s.address || '',
-            city: s.city || 'Colombo',
+            city: s.city || 'Colombo 01 (Fort), Colombo',
             cover_image_url: s.cover_image_url || '',
             logo_url: s.logo_url || '',
             advance_booking_days: s.advance_booking_days || 14,
@@ -174,19 +193,77 @@ const ShopSetup = () => {
         {step === 2 && (
           <div className="space-y-4">
             <h3 className="font-display font-bold text-base text-neutral-900">Location Details</h3>
-            <div>
-              <label className="block text-xs font-semibold text-neutral-700 uppercase mb-1">City</label>
-              <select
-                {...register('city')}
-                className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
-              >
-                {SRI_LANKA_CITIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase mb-1">
+                  District (Sri Lanka)
+                </label>
+                <select
+                  value={selectedDistrict}
+                  onChange={(e) => {
+                    const dist = e.target.value;
+                    setSelectedDistrict(dist);
+                    const towns = getTownsByDistrict(dist);
+                    const defaultTown = towns[0] || dist;
+                    setSelectedArea(defaultTown);
+                    setValue('city', `${defaultTown}, ${dist}`);
+                  }}
+                  className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white font-medium"
+                >
+                  {ALL_SRI_LANKA_DISTRICTS.map((d) => (
+                    <option key={d} value={d}>
+                      {d} District
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase mb-1">
+                  Area / Town / Suburb
+                </label>
+                <select
+                  value={selectedArea}
+                  onChange={(e) => {
+                    const area = e.target.value;
+                    setSelectedArea(area);
+                    if (area === 'Other') {
+                      setValue('city', customArea ? `${customArea}, ${selectedDistrict}` : selectedDistrict);
+                    } else {
+                      setValue('city', `${area}, ${selectedDistrict}`);
+                    }
+                  }}
+                  className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white font-medium"
+                >
+                  {getTownsByDistrict(selectedDistrict).map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                  <option value="Other">Other / Custom Area...</option>
+                </select>
+              </div>
             </div>
+
+            {selectedArea === 'Other' && (
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase mb-1">
+                  Custom Area / Village Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Nilaveli Beach Road"
+                  value={customArea}
+                  onChange={(e) => {
+                    setCustomArea(e.target.value);
+                    setValue('city', `${e.target.value}, ${selectedDistrict}`);
+                  }}
+                  className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                />
+              </div>
+            )}
+
+            <input type="hidden" {...register('city', { required: 'City/Area is required' })} />
 
             <div>
               <label className="block text-xs font-semibold text-neutral-700 uppercase mb-1">Full Street Address</label>

@@ -58,8 +58,9 @@ class ShopModel {
     let paramIndex = 1;
 
     if (city) {
-      query += ` AND LOWER(s.city) = LOWER($${paramIndex++})`;
-      values.push(city);
+      query += ` AND (LOWER(s.city) LIKE LOWER($${paramIndex}) OR LOWER(s.address) LIKE LOWER($${paramIndex}))`;
+      values.push(`%${city}%`);
+      paramIndex++;
     }
 
     if (category) {

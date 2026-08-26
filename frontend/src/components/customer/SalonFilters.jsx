@@ -1,5 +1,6 @@
 import React from 'react';
-import { SRI_LANKA_CITIES, SERVICE_CATEGORIES } from '../../utils/constants';
+import { SRI_LANKA_DISTRICTS_AND_TOWNS, ALL_SRI_LANKA_DISTRICTS } from '../../utils/sriLankaLocations';
+import { SERVICE_CATEGORIES } from '../../utils/constants';
 import { Filter, RotateCcw } from 'lucide-react';
 
 const SalonFilters = ({ filters, onChange, onReset }) => {
@@ -19,19 +20,24 @@ const SalonFilters = ({ filters, onChange, onReset }) => {
         </button>
       </div>
 
-      {/* City Dropdown */}
+      {/* District / Area Dropdown */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold text-neutral-700 uppercase tracking-wider">City</label>
+        <label className="text-xs font-semibold text-neutral-700 uppercase tracking-wider">Location / Area</label>
         <select
           value={filters.city || ''}
           onChange={(e) => onChange('city', e.target.value)}
-          className="w-full border border-neutral-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+          className="w-full border border-neutral-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white font-medium"
         >
-          <option value="">All Cities</option>
-          {SRI_LANKA_CITIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
+          <option value="">All Sri Lanka (All Areas)</option>
+          {ALL_SRI_LANKA_DISTRICTS.map((district) => (
+            <optgroup key={district} label={`📍 ${district} District`}>
+              <option value={district}>{district} (Entire District)</option>
+              {SRI_LANKA_DISTRICTS_AND_TOWNS[district].map((town) => (
+                <option key={`${district}-${town}`} value={town}>
+                  {town}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </div>

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, MapPin, Scissors, Sparkles, CalendarCheck, Smile, Star, ArrowRight, ShieldCheck, Heart } from 'lucide-react';
+import { Search, MapPin, Sparkles, CalendarCheck, Smile, Star, ArrowRight, ShieldCheck, Heart } from 'lucide-react';
 import { getFeaturedShopsApi, getShopsApi } from '../../api/shopApi';
 import SalonCard from '../../components/customer/SalonCard';
 import Loader from '../../components/common/Loader';
-import { SRI_LANKA_CITIES, SERVICE_CATEGORIES } from '../../utils/constants';
+import { SRI_LANKA_DISTRICTS_AND_TOWNS, ALL_SRI_LANKA_DISTRICTS } from '../../utils/sriLankaLocations';
 
 const Home = () => {
   const [featuredShops, setFeaturedShops] = useState([]);
@@ -80,13 +80,18 @@ const Home = () => {
               <select
                 value={searchCity}
                 onChange={(e) => setSearchCity(e.target.value)}
-                className="w-full text-sm bg-transparent focus:outline-none text-neutral-900 font-semibold cursor-pointer"
+                className="w-full text-sm bg-transparent focus:outline-none text-neutral-900 font-semibold cursor-pointer max-w-[240px]"
               >
-                <option value="">All Sri Lanka Cities</option>
-                {SRI_LANKA_CITIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
+                <option value="">All Sri Lanka (Districts & Towns)</option>
+                {ALL_SRI_LANKA_DISTRICTS.map((district) => (
+                  <optgroup key={district} label={`📍 ${district} District`}>
+                    <option value={district}>{district} (Entire District)</option>
+                    {SRI_LANKA_DISTRICTS_AND_TOWNS[district].map((town) => (
+                      <option key={`${district}-${town}`} value={town}>
+                        {town}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
@@ -118,32 +123,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Category Grid Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-display font-extrabold text-neutral-900">Explore by Category</h2>
-            <p className="text-xs text-neutral-500">Pick a specialized grooming or styling service</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
-          {SERVICE_CATEGORIES.map((cat, idx) => (
-            <Link
-              key={idx}
-              to={`/salons?category=${encodeURIComponent(cat)}`}
-              className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-xs hover:shadow-lg hover:border-primary-400 transition-all text-center group flex flex-col items-center justify-center space-y-2"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-primary-500 group-hover:text-white transition-all shadow-xs">
-                <Scissors className="w-5 h-5" />
-              </div>
-              <span className="text-xs font-bold text-neutral-800 group-hover:text-primary-600 transition-colors line-clamp-1">
-                {cat}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
 
       {/* Featured Salons Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
